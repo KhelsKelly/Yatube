@@ -1,0 +1,5 @@
+{% extends "new_post.html" %}
+{% block title %}Редактирование записи{% endblock %}
+{% block div_header %}Редактировать запись{% endblock %}
+{% block form_method %}{% url 'post_edit' author.username post.id %}{% endblock %}
+{% block button %}Сохранить{% endblock %}
