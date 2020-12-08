@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Последние обновления{% endblock %}
-{% block header %}Последние обновления на сайте{% endblock %}
+{% block header %}Последние обновления избранных{% endblock %}
 {% load cache %}
 {% cache 20 index_page %}
     {% block content %}
         <div class="container">
 
-            {% include "menu.html" with index=True %}
+            {% include "menu.html" with follow=True %}
             
+            {% if message %}Вы пока ни на кого не подписаны.{% endif %}
+
             {% for post in page %}
                 {% include "post_item.html" with post=post %}
             {% endfor %}
