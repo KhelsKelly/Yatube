@@ -6,6 +6,7 @@ from django.test import override_settings
 
 import tempfile
 
+from posts.models import Follow, Post
 from posts.forms import PostForm
 from posts.tests.base_class import PostBaseTestClass
 
@@ -142,7 +143,6 @@ class PostsViewsTest(PostBaseTestClass):
                 self.assertNotEqual(
                     response.context.get('page')[0].image, None
                 )
-        cache.clear()
         response = self.authorized_client.get(
             reverse('post', kwargs={'username': 'testsubject', 'post_id': 2})
         )
@@ -162,3 +162,32 @@ class PostsViewsTest(PostBaseTestClass):
         cache.clear()
         page_after = self.authorized_client.get(reverse('index')).content
         self.assertNotEqual(page_before, page_after)
+
+    def test_user_can_subscribe_and_unsubscribe(self):
+        follows_before = Follow.objects.count()
+        response1 = self.not_author.get(
+            reverse('profile_follow', kwargs={'username': 'testsubject'})
+        )
+        self.assertEqual(response1.status_code, 302)
+        self.assertEqual(Follow.objects.count(), follows_before+1)
+        response2 = self.not_author.get(
+            reverse('profile_unfollow', kwargs={'username': 'testsubject'})
+        )
+        self.assertEqual(response2.status_code, 302)
+        self.assertEqual(Follow.objects.count(), follows_before)
+
+    def test_new_post_is_appears_on_follow_for_subscribers(self):
+        self.not_author.get(
+            reverse('profile_follow', kwargs={'username': 'testsubject'})
+        )
+        self.authorized_client.post(
+            reverse('new_post'),
+            data={
+                'text': 'I hope this will work out well.',
+                'group': 2,
+            }
+        )
+        response1 = self.not_author.get(reverse('follow_index'))
+        response2 = self.authorized_client.get(reverse('follow_index'))
+        self.assertEqual(response1.context.get('page')[0].id, 2)
+        self.assertEqual(response2.context.get('paginator').count, 0)

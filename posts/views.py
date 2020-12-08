@@ -121,14 +121,10 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     """Render the page with followed's latest posts."""
-    subscriptions = request.user.follower.all()
-    post_list = []
-    message = False
-    if subscriptions:
-        for sub in subscriptions:
-            post_list.extend(sub.author.posts.all())
-    else:
-        message = True
+    post_list = Post.objects.select_related('author').filter(
+        author__in=request.user.follower.all().values('author')
+    )
+    message = len(post_list) == 0
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
