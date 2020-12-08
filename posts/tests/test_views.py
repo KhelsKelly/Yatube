@@ -136,8 +136,8 @@ class PostsViewsTest(PostBaseTestClass):
             reverse('profile', kwargs={'username': 'testsubject'}),
             reverse('group_posts', kwargs={'slug': 'testgroup'})
         ]
+        cache.clear()
         for url in urls:
-            cache.clear()
             response = self.authorized_client.get(url)
             with self.subTest():
                 self.assertNotEqual(
