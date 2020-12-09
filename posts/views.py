@@ -90,8 +90,8 @@ def post_edit(request, username, post_id):
 
     Check if the user is logged in and has a permission to edit the post.
     """
-    post = get_object_or_404(Post, author__username=username, id=post_id)
-    if request.user == post.author:
+    if request.user.username == username:
+        post = get_object_or_404(Post, author__username=username, id=post_id)
         form = PostForm(request.POST or None,
                         files=request.FILES or None,
                         instance=post)

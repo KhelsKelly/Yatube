@@ -52,17 +52,41 @@ class StaticURLTests(PostBaseTestClass):
                 self.assertTemplateUsed(response, template)
 
     def test_page_post_edit_is_available_for_author(self):
-        response = self.authorized_client.get('/testsubject/1/edit/')
+        response = self.authorized_client.get(
+            reverse(
+                'post_edit',
+                kwargs={'username': 'testsubject', 'post_id': 1})
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_page_edit_post_is_unavailable_for_non_author(self):
-        response = self.not_author.get('/testsubject/1/edit/')
+        response = self.not_author.get(
+            reverse(
+                'post_edit',
+                kwargs={'username': 'testsubject', 'post_id': 1})
+        )
         self.assertEqual(response.status_code, 302)
 
-    def test_url_edit_post_redirects_if_permission_denied(self):
-        response = self.not_author.get('/testsubject/1/edit/')
-        self.assertRedirects(response, '/testsubject/1/')
-
     def test_returns_404_if_not_found(self):
-        response = self.guest_client.get('/non-existent-user/')
+        response = self.guest_client.get(
+            reverse(
+                'profile',
+                kwargs={'username': 'non-existent-user'})
+        )
         self.assertEqual(response.status_code, 404)
+
+    def test_unauthorized_user_cannot_comment(self):
+        response = self.guest_client.get(
+            reverse(
+                'add_comment',
+                kwargs={'username': 'testsubject', 'post_id': 1})
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_unauthorized_user_cannot_subscribe(self):
+        response = self.guest_client.get(
+            reverse(
+                'profile_follow',
+                kwargs={'username': 'testsubject'})
+        )
+        self.assertEqual(response.status_code, 302)

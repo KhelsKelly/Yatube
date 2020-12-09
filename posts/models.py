@@ -46,14 +46,11 @@ class Comment(models.Model):
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
                              related_name='comments')
-
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='comments')
-
     text = models.TextField(verbose_name='Комментарий',
                             help_text='Выразите своё мнение'
                                       '(желательно, вежливо).')
-
     created = models.DateTimeField(verbose_name='Дата добавления',
                                    auto_now_add=True, db_index=True)
 
@@ -62,6 +59,9 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
+    # попробовал вариант с unique_together, но из-за него
+    # не работают тесты, поскольку там пытаются два раза
+    # подписаться на одного юзера, что поднимает исключение
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='follower')
     author = models.ForeignKey(User, on_delete=models.CASCADE,
