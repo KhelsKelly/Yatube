@@ -139,11 +139,9 @@ def profile_follow(request, username):
     """Allow the user to subscribe if the user is not subscribed already
     and don't allow self-subscription.
     """
-    author = get_object_or_404(User, username=username)
-    if (not request.user.follower.filter(author=author) and
-       request.user != author):
-        follow = Follow(user=request.user, author=author)
-        follow.save()
+    if request.user.username != username:
+        author = get_object_or_404(User, username=username)
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('profile', username=username)
 
 

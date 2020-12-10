@@ -59,9 +59,12 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
-    # попробовал вариант с unique_together, но из-за него
-    # не работают тесты, поскольку там пытаются два раза
-    # подписаться на одного юзера, что поднимает исключение
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='unique_follow')
+        ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='follower')
     author = models.ForeignKey(User, on_delete=models.CASCADE,
