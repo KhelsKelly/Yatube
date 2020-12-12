@@ -64,7 +64,7 @@ def profile(request, username):
     page = paginator.get_page(page_number)
     following = False
     if request.user.is_authenticated:
-        following = bool(request.user.follower.filter(author=author))
+        following = request.user.follower.filter(author=author).exists()
     return render(
         request, 'profile.html',
         {'author': author, 'page': page,
@@ -108,12 +108,12 @@ def post_edit(request, username, post_id):
 @login_required
 def add_comment(request, username, post_id):
     """Render the comment page."""
-    post = get_object_or_404(Post, author__username=username, id=post_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
+        post = get_object_or_404(Post, author__username=username, id=post_id)
         comment = form.save(commit=False)
         comment.post = post
-        comment.author = post.author
+        comment.author = request.user
         comment.save()
     return redirect('post', username=username, post_id=post_id)
 
@@ -148,8 +148,8 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     """Allow the user to unsubscribe."""
-    author = get_object_or_404(User, username=username)
-    get_object_or_404(Follow, user=request.user, author=author).delete()
+    get_object_or_404(
+        Follow, user=request.user, author__username=username).delete()
     return redirect('profile', username=username)
 
 
