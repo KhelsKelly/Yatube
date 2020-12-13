@@ -7,12 +7,12 @@ from posts.models import User, Group, Post, Follow
 from posts.forms import PostForm, CommentForm
 
 
-@cache_page(20, key_prefix='index_page')
+@cache_page(5, key_prefix='index_page')
 def index(request):
     """Render the homepage."""
-    post_list = Post.objects.all()
+    post_list = Post.objects.prefetch_related(
+        'author', 'group', 'comments').all()
     paginator = Paginator(post_list, 10)
-
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -22,18 +22,20 @@ def index(request):
     )
 
 
+@cache_page(5, key_prefix='groups_page')
 def group_list(request):
     """Render the page with a list of groups."""
     groups = Group.objects.order_by('-title')
     return render(request, 'group_list.html', {'groups': groups})
 
 
+@cache_page(5, key_prefix='group_page')
 def group_posts(request, slug):
     """Render the page with a list of group's posts."""
     group = get_object_or_404(Group, slug=slug)
-    post_list = group.posts.all()
+    post_list = group.posts.prefetch_related(
+        'author', 'group', 'comments').all()
     paginator = Paginator(post_list, 10)
-
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -58,7 +60,8 @@ def new_post(request):
 def profile(request, username):
     """Render the profile page."""
     author = get_object_or_404(User, username=username)
-    post_list = author.posts.all()
+    post_list = author.posts.prefetch_related(
+        'author', 'group', 'comments').all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -72,6 +75,7 @@ def profile(request, username):
     )
 
 
+@cache_page(5, key_prefix='post_page')
 def post_view(request, username, post_id):
     """Render the page containing one specific post with comments."""
     post = get_object_or_404(Post, author__username=username, id=post_id)
@@ -119,11 +123,12 @@ def add_comment(request, username, post_id):
 
 
 @login_required
+@cache_page(40, key_prefix='follow_page')
 def follow_index(request):
     """Render the page with followed's latest posts."""
-    post_list = Post.objects.select_related('author').filter(
-        author__in=request.user.follower.all().values('author')
-    )
+    post_list = Post.objects.prefetch_related(
+        'author', 'group', 'comments').filter(
+            author__in=request.user.follower.all().values('author'))
     message = len(post_list) == 0
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')

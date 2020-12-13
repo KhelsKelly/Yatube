@@ -6,7 +6,7 @@ from django.test import override_settings
 
 import tempfile
 
-from posts.models import Follow, Post
+from posts.models import Follow
 from posts.forms import PostForm
 from posts.tests.base_class import PostBaseTestClass
 
@@ -176,7 +176,7 @@ class PostsViewsTest(PostBaseTestClass):
         self.assertEqual(response2.status_code, 302)
         self.assertEqual(Follow.objects.count(), follows_before)
 
-    def test_new_post_is_appears_on_follow_for_subscribers(self):
+    def test_new_post_appears_on_follow_for_subscribers(self):
         self.not_author.get(
             reverse('profile_follow', kwargs={'username': 'testsubject'})
         )
@@ -188,6 +188,7 @@ class PostsViewsTest(PostBaseTestClass):
             }
         )
         response1 = self.not_author.get(reverse('follow_index'))
+        cache.clear()
         response2 = self.authorized_client.get(reverse('follow_index'))
         self.assertEqual(response1.context.get('page')[0].id, 2)
         self.assertEqual(response2.context.get('paginator').count, 0)
