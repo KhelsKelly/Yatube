@@ -1,8 +1,6 @@
 import shutil
 import tempfile
 from django.conf import settings
-from django.contrib.flatpages.models import FlatPage
-from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.test import Client, TestCase
 
@@ -27,19 +25,6 @@ class PostBaseTestClass(TestCase):
             slug='testgroup2',
             description='It is nothing but a mere testgroup2.',
         )
-        cls.site = Site.objects.get(pk=1)
-        cls.flatpage_author = FlatPage.objects.create(
-            url='/about-author/',
-            title='About me',
-            content='Well, we will think of that later.'
-        )
-        cls.flatpage_spec = FlatPage.objects.create(
-            url='/about-spec/',
-            title='Technologies used',
-            content='Still not a single idea.'
-        )
-        cls.flatpage_author.sites.add(cls.site)
-        cls.flatpage_spec.sites.add(cls.site)
 
     @classmethod
     def tearDownClass(cls):

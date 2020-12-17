@@ -79,7 +79,7 @@ def profile(request, username):
 def post_view(request, username, post_id):
     """Render the page containing one specific post with comments."""
     post = get_object_or_404(Post, author__username=username, id=post_id)
-    comments = post.comments.all()
+    comments = post.comments.prefetch_related('author').all()
     form = CommentForm()
     return render(
         request, 'post.html',

@@ -92,20 +92,6 @@ class PostsViewsTest(PostBaseTestClass):
         self.assertEqual(post, self.post)
         self.assertEqual(comment, self.comment)
 
-    def test_about_author_and_about_spec_pass_correct_contexts(self):
-        views = {
-            reverse('about-author'):
-                ['About me', 'Well, we will think of that later.'],
-            reverse('about-spec'):
-                ['Technologies used', 'Still not a single idea.'],
-        }
-        for view_name, value in views.items():
-            response = self.authorized_client.get(view_name)
-            self.assertEqual(
-                response.context.get('flatpage').title, value[0])
-            self.assertEqual(
-                response.context.get('flatpage').content, value[1])
-
     @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     def test_images(self):
         small_gif = (

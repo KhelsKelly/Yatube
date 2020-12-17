@@ -25,10 +25,9 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'posts',
     'users',
+    'about',
     'sorl.thumbnail',
     'debug_toolbar',
-    'django.contrib.sites',
-    'django.contrib.flatpages',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

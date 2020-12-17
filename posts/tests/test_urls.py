@@ -26,12 +26,12 @@ class StaticURLTests(PostBaseTestClass):
         response = self.authorized_client.get(reverse('new_post'))
         self.assertEqual(response.status_code, 200)
 
-    def test_flatpage_about_author(self):
-        response = self.guest_client.get(reverse('about-author'))
+    def test_static_page_about_author(self):
+        response = self.guest_client.get(reverse('about:author'))
         self.assertEqual(response.status_code, 200)
 
-    def test_flatpage_about_spec(self):
-        response = self.guest_client.get(reverse('about-spec'))
+    def test_static_page_about_tech(self):
+        response = self.guest_client.get(reverse('about:tech'))
         self.assertEqual(response.status_code, 200)
 
     def test_url_uses_correct_template(self):
